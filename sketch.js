@@ -14,9 +14,18 @@ function initParams() {
     maxAlpha: 0.8,
   };
 }
+
+function fxSetup() {
+  let seed = lerp(-1000000, 1000000, $fx.rand()); 
+  randomSeed(seed);
+  noiseSeed(seed);
+  console.log("fxhash = " + $fx.hash);
+}
+
 function setup() {
   
   createCanvas(600, 800);
+  fxSetup();
   bgColor = getRandomBackgroundColor();
   
   background(bgColor);
