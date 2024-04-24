@@ -537,13 +537,13 @@ function drawRectLayer(_xCount, _yCount, _blendMode, _fromColor, _toColor, _rect
 
 /**
  * 繪製毛毛效果的邊框線
- * @param {number} _x - 矩形的 x 座標
- * @param {number} _y - 矩形的 y 座標
- * @param {number} _width - 矩形的寬度
- * @param {number} _height - 矩形的高度
- * @param {p5.Color} _color - 邊框線的顏色
+ * @param {number} _borderX - 矩形的 x 座標
+ * @param {number} _borderY - 矩形的 y 座標
+ * @param {number} _borderWidth - 矩形的寬度
+ * @param {number} _borderHeight - 矩形的高度
+ * @param {p5.Color} __borderColor - 邊框線的顏色
  */
-function drawFuzzyBorder(_x, _y, _width, _height, _color) {
+function drawFuzzyBorder(_borderX, _borderY, _borderWidth, _borderHeight, __borderColor) {
 
   let dotSpacing = random(3, 8);
   mainCanvas.noFill();
@@ -552,42 +552,42 @@ function drawFuzzyBorder(_x, _y, _width, _height, _color) {
   let textureType = random();
 
   if (textureType < 0.33) {
-    drawDottedTexture(_x, _y, _width, _height, dotSpacing, _color);
+    drawDottedTexture(_borderX, _borderY, _borderWidth, _borderHeight, dotSpacing, __borderColor);
   } else if (textureType < 0.66) {
-    drawLineTexture(_x, _y, _width, _height, dotSpacing, _color);
+    drawLineTexture(_borderX, _borderY, _borderWidth, _borderHeight, dotSpacing, __borderColor);
   } else {
-    drawFoggyTexture(_x, _y, _width, _height, dotSpacing, _color);
+    drawFoggyTexture(_borderX, _borderY, _borderWidth, _borderHeight, dotSpacing, __borderColor);
   }
 }
 
 /**
  * 繪製紋理效果 - 點點
- * @param {number} _x - 矩形的 x 座標
- * @param {number} _y - 矩形的 y 座標
- * @param {number} _width - 矩形的寬度
- * @param {number} _height - 矩形的高度
- * @param {number} _space - 間距
- * @param {number} _color - 顏色
+ * @param {number} _textureX - 矩形的 x 座標
+ * @param {number} _textureY - 矩形的 y 座標
+ * @param {number} _textureWidth - 矩形的寬度
+ * @param {number} _textureHeight - 矩形的高度
+ * @param {number} _textureSpace - 間距
+ * @param {number} _textureColor - 顏色
  */
-function drawDottedTexture(_x, _y, _width, _height, _space, _color) {
+function drawDottedTexture(_textureX, _textureY, _textureWidth, _textureHeight, _textureSpace, _textureColor) {
   let noiseScale = random(0.01, 0.1);
 
-  for (let x = _x; x <= _x + _width; x += _space) {
-    for (let y = _y; y <= _y + _height; y += _space) {
+  for (let x = _textureX; x <= _textureX + _textureWidth; x += _textureSpace) {
+    for (let y = _textureY; y <= _textureY + _textureHeight; y += _textureSpace) {
       let noiseVal = noise(x * noiseScale, y * noiseScale);
       let offsetX = random(-5, 5);
       let offsetY = random(-5, 5);
       let pointSize = map(noiseVal, 0, 1, 1, 8); 
 
-      let lerpAmount = map(dist(x, y, _x, _y), 0, dist(_x, _y, _x + _width, _y + _height), 0, 1);
+      let lerpAmount = map(dist(x, y, _textureX, _textureY), 0, dist(_textureX, _textureY, _textureX + _textureWidth, _textureY + _textureHeight), 0, 1);
       let hueOffset = map(lerpAmount, 0, 1, -30, 30);
       let satOffset = map(lerpAmount, 0, 1, -20, 20);
       let briOffset = map(lerpAmount, 0, 1, -20, 20);
       
       let pointColor = color(
-        (hue(_color) + hueOffset + 360) % 360,
-        constrain(saturation(_color) + satOffset, 0, 100),
-        constrain(brightness(_color) + briOffset, 0, 100)
+        (hue(_textureColor) + hueOffset + 360) % 360,
+        constrain(saturation(_textureColor) + satOffset, 0, 100),
+        constrain(brightness(_textureColor) + briOffset, 0, 100)
       );
       
       mainCanvas.stroke(pointColor);
@@ -599,39 +599,39 @@ function drawDottedTexture(_x, _y, _width, _height, _space, _color) {
 
 /**
  * 繪製紋理效果 - 方格線條
- * @param {number} _x - 矩形的 x 座標
- * @param {number} _y - 矩形的 y 座標
- * @param {number} _width - 矩形的寬度
- * @param {number} _height - 矩形的高度
- * @param {number} _space - 間距
- * @param {number} _color - 顏色
+ * @param {number} _textureX - 矩形的 x 座標
+ * @param {number} _textureY - 矩形的 y 座標
+ * @param {number} _textureWidth - 矩形的寬度
+ * @param {number} _textureHeight - 矩形的高度
+ * @param {number} _textureSpace - 間距
+ * @param {number} _textureColor - 顏色
  */
-function drawLineTexture(_x, _y, _width, _height, _space, _color) {
+function drawLineTexture(_textureX, _textureY, _textureWidth, _textureHeight, _textureSpace, _textureColor) {
   let noiseScale = random(0.01, 0.1);
 
-  drawTextureLines(_x, _y, _width, _height, _space, true, noiseScale, _color);
-  drawTextureLines(_x, _y, _width, _height, _space, false, noiseScale, _color);
+  drawTextureLines(_textureX, _textureY, _textureWidth, _textureHeight, _textureSpace, true, noiseScale, _textureColor);
+  drawTextureLines(_textureX, _textureY, _textureWidth, _textureHeight, _textureSpace, false, noiseScale, _textureColor);
 }
 
-function drawTextureLines(_x, _y, _width, _height, _space, _isHorizontal, _noiseScale, _color) {
-  let start = mainCanvas.createVector(_x, _y);
-  let end = mainCanvas.createVector(_x + _width, _y + _height);
+function drawTextureLines(_textureX, _textureY, _textureWidth, _textureHeight, _textureSpace, _isHorizontal, _noiseScale, _textureColor) {
+  let start = mainCanvas.createVector(_textureX, _textureY);
+  let end = mainCanvas.createVector(_textureX + _textureWidth, _textureY + _textureHeight);
 
-  for (let i = 0; i <= (_isHorizontal ? _width : _height); i += _space) {
+  for (let i = 0; i <= (_isHorizontal ? _textureWidth : _textureHeight); i += _textureSpace) {
     let position = _isHorizontal ? start.x + i : start.y + i;
     let noiseVal = noise(position * _noiseScale);
     let offset = noiseVal * 8; 
     let thickness = map(noiseVal, 0, 1, 1, 8); 
 
-    let lerpAmount = map(i, 0, _isHorizontal ? _width : _height, 0, 1);
+    let lerpAmount = map(i, 0, _isHorizontal ? _textureWidth : _textureHeight, 0, 1);
     let hueOffset = map(lerpAmount, 0, 1, -30, 30);
     let satOffset = map(lerpAmount, 0, 1, -20, 20);
     let briOffset = map(lerpAmount, 0, 1, -20, 20);
 
     let lineColor = color(
-      (hue(_color) + hueOffset + 360) % 360,
-      constrain(saturation(_color) + satOffset, 0, 100),
-      constrain(brightness(_color) + briOffset, 0, 100)
+      (hue(_textureColor) + hueOffset + 360) % 360,
+      constrain(saturation(_textureColor) + satOffset, 0, 100),
+      constrain(brightness(_textureColor) + briOffset, 0, 100)
     );
 
     mainCanvas.stroke(lineColor);
@@ -647,17 +647,17 @@ function drawTextureLines(_x, _y, _width, _height, _space, _isHorizontal, _noise
 
 /**
  * 繪製紋理效果 - 霧化
- * @param {number} _x - 矩形的 x 座標
- * @param {number} _y - 矩形的 y 座標
- * @param {number} _width - 矩形的寬度
- * @param {number} _height - 矩形的高度
- * @param {number} _space - 間距
- * @param {number} _color - 顏色
+ * @param {number} _textureX - 矩形的 x 座標
+ * @param {number} _textureY - 矩形的 y 座標
+ * @param {number} _textureWidth - 矩形的寬度
+ * @param {number} _textureHeight - 矩形的高度
+ * @param {number} _textureSpace - 間距
+ * @param {number} _textureColor - 顏色
  */
-function drawFoggyTexture(_x, _y, _width, _height, _space, _color) {
+function drawFoggyTexture(_textureX, _textureY, _textureWidth, _textureHeight, _textureSpace, _textureColor) {
   let noiseScale = random(0.01, 0.1);
-  for (let x = _x; x <= _x + _width; x += _space) {
-    for (let y = _y; y <= _y + _height; y += _space) {
+  for (let x = _textureX; x <= _textureX + _textureWidth; x += _textureSpace) {
+    for (let y = _textureY; y <= _textureY + _textureHeight; y += _textureSpace) {
       let noiseVal = noise(x * noiseScale, y * noiseScale); 
       
       let offsetX = map(noiseVal, 0, 1, -5, 5);
@@ -665,20 +665,20 @@ function drawFoggyTexture(_x, _y, _width, _height, _space, _color) {
       let alpha = map(noiseVal, 0, 1, 50, 150);
       let strokeSize = map(noiseVal, 0, 1, 1, 8); 
 
-      let lerpAmount = map(dist(x, y, _x, _y), 0, dist(_x, _y, _x + _width, _y + _height), 0, 1);
+      let lerpAmount = map(dist(x, y, _textureX, _textureY), 0, dist(_textureX, _textureY, _textureX + _textureWidth, _textureY + _textureHeight), 0, 1);
       let hueOffset = map(lerpAmount, 0, 1, -60, 60);
       let satOffset = map(lerpAmount, 0, 1, -20, 20);
       let briOffset = map(lerpAmount, 0, 1, -20, 20);
 
       let fogColor = color(
-        (mainCanvas.hue(_color) + hueOffset + 360) % 360,
-        constrain(mainCanvas.saturation(_color) + satOffset, 0, 100),
-        constrain(mainCanvas.brightness(_color) + briOffset, 0, 100),
+        (mainCanvas.hue(_textureColor) + hueOffset + 360) % 360,
+        constrain(mainCanvas.saturation(_textureColor) + satOffset, 0, 100),
+        constrain(mainCanvas.brightness(_textureColor) + briOffset, 0, 100),
         alpha
       );
 
       mainCanvas.stroke(fogColor);
-      mainCanvas.stroke(_color, alpha);
+      mainCanvas.stroke(_textureColor, alpha);
       mainCanvas.strokeWeight(strokeSize);
       mainCanvas.point(x + offsetX, y + offsetY);
     }
