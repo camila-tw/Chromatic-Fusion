@@ -1,5 +1,13 @@
 let bgColor;
 let colorScheme;
+let drawWidth, drawHeight, drawRatio;
+let canvasWidth, canvasHeight, canvasRatio;
+let densityRatio;
+
+/**
+ * 主要畫布
+ */
+let mainCanvas;
 
 /**
  * 初始化參數
@@ -22,14 +30,65 @@ function fxSetup() {
   console.log("fxhash = " + $fx.hash);
 }
 
+/**
+ * 初始化畫面比例
+ */
+function setupRatio () {
+
+  densityRatio = 1;
+  windowRatio = windowWidth / windowHeight;
+  drawRatio = drawWidth / drawHeight;
+
+  if(drawRatio < windowRatio)
+  {
+    canvasHeight = windowHeight;
+    canvasWidth = canvasHeight * drawRatio;
+  }
+  else
+  {
+    canvasWidth = windowWidth;
+    canvasHeight = canvasWidth / drawRatio;
+  }
+
+  let url = new URL(window.location.href);
+  let inputRatio = url.searchParams.get('scale');
+  inputRatio = float(inputRatio);
+
+  if( isNaN(inputRatio) == true )
+  {
+    densityRatio = canvasWidth / drawWidth;
+  }
+  else
+  {
+    densityRatio = inputRatio;
+  }
+}
+
+/**
+ * 主要畫布初始設定
+ */
+function setupMainCanvas() {
+  mainCanvas = createGraphics(drawWidth, drawHeight);
+  mainCanvas.pixelDensity(densityRatio);
+  bgColor = getRandomBackgroundColor();
+  mainCanvas.background(bgColor);
+  mainCanvas.colorMode(HSB);
+}
+
 function setup() {
   
-  createCanvas(600, 800);
-  fxSetup();
-  bgColor = getRandomBackgroundColor();
+  drawWidth = 600;
+  drawHeight = 800;
   
-  background(bgColor);
+  createCanvas(drawWidth, drawHeight);
+
+  fxSetup();
+  // bgColor = getRandomBackgroundColor();
+  
+  // background(bgColor);
   colorMode(HSB);
+  setupRatio();
+  setupMainCanvas();
 
   let params = initParams();
   let layers = params.layers;
@@ -66,7 +125,7 @@ function getRandomCount(_minSize, _maxSize) {
  * @returns {p5.Color} 隨機背景色
  */
 function getRandomBackgroundColor() {
-  let hue = frameCount % 360;
+  let hue = (frameCount % 360);
   let sat, bri;
 
   switch (colorScheme) {
@@ -88,6 +147,10 @@ function getRandomBackgroundColor() {
       break;
   }
   return color(hue, sat, bri);
+}
+
+function draw() {
+  image(mainCanvas, 0, 0, width, height);
 }
 
 /**
@@ -334,9 +397,9 @@ function getRelatedColor(_hue, _sat, _bri, _alpha, _colorScheme) {
  */
 function drawColorFilterLayer() {
   let overlayColor = color(hue(bgColor), 40, 100, 0.2);
-  noStroke();
-  fill(overlayColor);
-  rect(0, 0, width, height);
+  mainCanvas.noStroke();
+  mainCanvas.fill(overlayColor);
+  mainCanvas.rect(0, 0, width, height);
 }
 
 
@@ -363,8 +426,8 @@ function drawLayers(_layers, _minSize, _maxSize, _minAlpha, _maxAlpha) {
     let xCount = getRandomCount(_minSize, _maxSize);
     let yCount = getRandomCount(_minSize, _maxSize);
 
-    let rectWidth = (width - 2 * padding) / xCount;
-    let rectHeight = (height - 2 * padding) / yCount;
+    let rectWidth = (mainCanvas.width - 2 * padding) / xCount;
+    let rectHeight = (mainCanvas.height - 2 * padding) / yCount;
 
     let layerAlpha = random(_minAlpha, _maxAlpha); 
     let mode = random([BLEND, MULTIPLY, SCREEN, OVERLAY]);
@@ -417,14 +480,14 @@ function drawLayers(_layers, _minSize, _maxSize, _minAlpha, _maxAlpha) {
  * @param {number} length - 線條的長度
  */
 function drawLine(x, y, rotation, thickness, color, length) {
-  push();
-  translate(x, y);
-  rotate(rotation);
-  strokeWeight(thickness);
-  stroke(color);
-  noFill();
-  line(0, -length / 2, 0, length / 2);
-  pop();
+  mainCanvas.push();
+  mainCanvas.translate(x, y);
+  mainCanvas.rotate(rotation);
+  mainCanvas.strokeWeight(thickness);
+  mainCanvas.stroke(color);
+  mainCanvas.noFill();
+  mainCanvas.line(0, -length / 2, 0, length / 2);
+  mainCanvas.pop();
 }
 
 /**
@@ -438,9 +501,9 @@ function drawLine(x, y, rotation, thickness, color, length) {
  * @param {number} _layerAlpha - 透明度
  */
 function drawRectLayer(_xCount, _yCount, _blendMode, _fromColor, _toColor, _rectWidth, _rectHeight, _padding, _layerAlpha, _layerIndex, _totalLayers) {
-  push();
-  blendMode(_blendMode);
-  noStroke();
+  mainCanvas.push();
+  mainCanvas.blendMode(_blendMode);
+  mainCanvas.noStroke();
 
   // 噪聲比例因子，可調整噪聲細節
   let noiseScale = random(0.01, 0.1); 
@@ -463,13 +526,13 @@ function drawRectLayer(_xCount, _yCount, _blendMode, _fromColor, _toColor, _rect
       let xPos = _padding + x * _rectWidth;
       let yPos = _padding + y * _rectHeight;
 
-      fill(rectColor);
-      rect(xPos, yPos, rectWidth, rectHeight);
+      mainCanvas.fill(rectColor);
+      mainCanvas.rect(xPos, yPos, rectWidth, rectHeight);
       drawFuzzyBorder(xPos, yPos, rectWidth, rectHeight, rectColor);
     }
   }
 
-  pop();
+  mainCanvas.pop();
 }
 
 /**
@@ -483,8 +546,8 @@ function drawRectLayer(_xCount, _yCount, _blendMode, _fromColor, _toColor, _rect
 function drawFuzzyBorder(_x, _y, _width, _height, _color) {
 
   let dotSpacing = random(3, 8);
-  noFill();
-  strokeCap(ROUND);
+  mainCanvas.noFill();
+  mainCanvas.strokeCap(ROUND);
 
   let textureType = random();
 
@@ -527,9 +590,9 @@ function drawDottedTexture(_x, _y, _width, _height, _space, _color) {
         constrain(brightness(_color) + briOffset, 0, 100)
       );
       
-      stroke(pointColor);
-      strokeWeight(pointSize);
-      point(x + offsetX, y + offsetY);
+      mainCanvas.stroke(pointColor);
+      mainCanvas.strokeWeight(pointSize);
+      mainCanvas.point(x + offsetX, y + offsetY);
     }
   }
 }
@@ -551,8 +614,8 @@ function drawLineTexture(_x, _y, _width, _height, _space, _color) {
 }
 
 function drawTextureLines(_x, _y, _width, _height, _space, _isHorizontal, _noiseScale, _color) {
-  let start = createVector(_x, _y);
-  let end = createVector(_x + _width, _y + _height);
+  let start = mainCanvas.createVector(_x, _y);
+  let end = mainCanvas.createVector(_x + _width, _y + _height);
 
   for (let i = 0; i <= (_isHorizontal ? _width : _height); i += _space) {
     let position = _isHorizontal ? start.x + i : start.y + i;
@@ -571,13 +634,13 @@ function drawTextureLines(_x, _y, _width, _height, _space, _isHorizontal, _noise
       constrain(brightness(_color) + briOffset, 0, 100)
     );
 
-    stroke(lineColor);
-    strokeWeight(thickness);
+    mainCanvas.stroke(lineColor);
+    mainCanvas.strokeWeight(thickness);
 
     if (_isHorizontal) {
-      line(start.x + i, start.y + offset, start.x + i, end.y + offset);
+      mainCanvas.line(start.x + i, start.y + offset, start.x + i, end.y + offset);
     } else {
-      line(start.x + offset, start.y + i, end.x + offset, start.y + i);
+      mainCanvas.line(start.x + offset, start.y + i, end.x + offset, start.y + i);
     }
   }
 }
@@ -608,16 +671,16 @@ function drawFoggyTexture(_x, _y, _width, _height, _space, _color) {
       let briOffset = map(lerpAmount, 0, 1, -20, 20);
 
       let fogColor = color(
-        (hue(_color) + hueOffset + 360) % 360,
-        constrain(saturation(_color) + satOffset, 0, 100),
-        constrain(brightness(_color) + briOffset, 0, 100),
+        (mainCanvas.hue(_color) + hueOffset + 360) % 360,
+        constrain(mainCanvas.saturation(_color) + satOffset, 0, 100),
+        constrain(mainCanvas.brightness(_color) + briOffset, 0, 100),
         alpha
       );
 
-      stroke(fogColor);
-      stroke(_color, alpha);
-      strokeWeight(strokeSize);
-      point(x + offsetX, y + offsetY);
+      mainCanvas.stroke(fogColor);
+      mainCanvas.stroke(_color, alpha);
+      mainCanvas.strokeWeight(strokeSize);
+      mainCanvas.point(x + offsetX, y + offsetY);
     }
   }
 }
@@ -634,8 +697,8 @@ function drawFoggyTexture(_x, _y, _width, _height, _space, _color) {
  * @param {number} _layerAlpha - 透明度
  */
 function drawNoiseLayer(_xCount, _yCount, _mode, _fromColor, _toColor, _rectWidth, _rectHeight, _padding, _layerAlpha, _layerIndex, _totalLayers) {
-  push();
-  blendMode(_mode);
+  mainCanvas.push();
+  mainCanvas.blendMode(_mode);
 
   // 更小的比例因子以增加噪聲細節
   let noiseScale = random(0.01, 0.1); 
@@ -656,13 +719,13 @@ function drawNoiseLayer(_xCount, _yCount, _mode, _fromColor, _toColor, _rectWidt
       let xPos = _padding + x * _rectWidth;
       let yPos = _padding + y * _rectHeight;
 
-      fill(rectColor, _layerAlpha);
+      mainCanvas.fill(rectColor, _layerAlpha);
 
       drawNoiseRect(xPos, yPos, rectWidth, rectHeight, _fromColor, _toColor, _mode);
     }
   }
 
-  pop();
+  mainCanvas.pop();
 }
 
 /**
@@ -696,5 +759,18 @@ function drawNoiseRect(_x, _y, _rectWidth, _rectHeight, _fromColor, _toColor, _m
 
       drawLine(xPos, yPos, radians(lineRot), lineThickness, nowColor, 12);
     }
+  }
+}
+
+/**
+ * 鍵盤事件, p5內建的函式
+ * 讓用戶點擊s可儲存檔案 
+ */
+function keyPressed (e) {
+  console.log(e);
+  if(e.key == 's' || e.key == 'S')
+  {
+    let fileName = "Gradient-and-Textures-" + $fx.hash + ".png";
+    save(mainCanvas, fileName);
   }
 }
