@@ -75,27 +75,8 @@ function setupMainCanvas() {
   mainCanvas.colorMode(HSB);
 }
 
-function setup() {
+function initVariable() {
   
-  drawWidth = 600;
-  drawHeight = 800;
-  
-  createCanvas(drawWidth, drawHeight);
-
-  fxSetup();
-  // bgColor = getRandomBackgroundColor();
-  
-  // background(bgColor);
-  colorMode(HSB);
-  setupRatio();
-  setupMainCanvas();
-
-  let params = initParams();
-  let layers = params.layers;
-  let minSize = params.minSize;
-  let maxSize = params.maxSize;
-  let minAlpha = params.minAlpha;
-  let maxAlpha = params.maxAlpha;
 
   colorScheme = random([
     "monochromatic",
@@ -106,6 +87,28 @@ function setup() {
     "triadic",
   ]);
 
+  drawWidth = 600;
+  drawHeight = 800;
+
+  fxSetup();
+  colorMode(HSB);
+
+  setupRatio();
+  setupMainCanvas();
+}
+
+function setup() {
+
+  initVariable();
+  createCanvas(canvasWidth, canvasHeight);
+
+  let params = initParams();
+  let layers = params.layers;
+  let minSize = params.minSize;
+  let maxSize = params.maxSize;
+  let minAlpha = params.minAlpha;
+  let maxAlpha = params.maxAlpha;
+  
   drawLayers(layers, minSize, maxSize, minAlpha, maxAlpha);
   drawColorFilterLayer();
 }
