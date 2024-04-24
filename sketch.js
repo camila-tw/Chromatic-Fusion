@@ -77,7 +77,6 @@ function setupMainCanvas() {
 
 function initVariable() {
   
-
   colorScheme = random([
     "monochromatic",
     "analogous",
@@ -87,7 +86,7 @@ function initVariable() {
     "triadic",
   ]);
 
-  drawWidth = 600;
+  drawWidth = 800;
   drawHeight = 800;
 
   fxSetup();
@@ -108,7 +107,7 @@ function setup() {
   let maxSize = params.maxSize;
   let minAlpha = params.minAlpha;
   let maxAlpha = params.maxAlpha;
-  
+
   drawLayers(layers, minSize, maxSize, minAlpha, maxAlpha);
   drawColorFilterLayer();
 }
@@ -157,97 +156,15 @@ function draw() {
 }
 
 /**
- * 獲取隨機顏色
- * @param {number} _mainHue - 主色調
- * @param {number} _layerAlpha - 透明度
- * @returns {p5.Color} 隨機顏色
- */
-function getRandomColor(_mainHue, _layerAlpha) {
-
-  let randomColor, randomHue, randomSat, randomBri;
-
-  let bgSat = saturation(bgColor);
-  let bgBri = brightness(bgColor);
-
-  let hueDiff = abs(_mainHue - hue(bgColor));
-  let satRange = map(hueDiff, 0, 180, 10, 30);
-  let briRange = map(hueDiff, 0, 180, 10, 30);
-
-  randomSat = constrain(bgSat + random(-satRange, satRange), 30, 100);
-  randomBri = constrain(bgBri + random(-briRange, briRange), 30, 100);
-  switch (colorScheme) {
-    // 單色配色法：以單一顏色為焦點，通常透過混合一個色相的淺色、色調和色度作搭配變化。
-    case "monochromatic":
-      randomHue = _mainHue;
-      break;
-
-    //相似色配色法: 在構圖選擇相似色組合時，只以一種色調為主，即冷色調或暖色調。挑一種主色，再用對應的相似色襯托。
-    case "analogous":
-      randomHue = (_mainHue + random(-30, 30)) % 360;
-      break;
-
-    //互補配色法: 其中一色通常是原色，而另一色則為二次色。
-    case "complementary":
-      randomHue = (_mainHue + 180) % 360;
-      break;
-
-    //補色分割配色法: 補色分割的配色看起來有點類似互補色，但這種組合混合了一種顏色和其互補色相鄰的兩色
-    case "splitComplementary":
-      {
-        let splitHue1 = (_mainHue + 150) % 360;
-        let splitHue2 = (_mainHue + 210) % 360;
-        randomHue = random([splitHue1, splitHue2]);
-      }
-      break;
-      
-    //矩形配色法: 互補色在本質上已經很強烈；雙重互補色，又稱矩形配色使用兩組互補色讓效果加倍。
-    case "tetradic":
-      {
-        let tetradicHue1 = _mainHue;
-        let tetradicHue2 = (_mainHue + 90) % 360;
-        let tetradicHue3 = (_mainHue + 180) % 360;
-        let tetradicHue4 = (_mainHue + 270) % 360;
-        randomHue= random([tetradicHue1,tetradicHue2,tetradicHue3,tetradicHue4,]);
-      }
-      break;
-    //三等分配色法: 三等分配色是由三種顏色組成，這三種顏色在色輪上的位置彼此等距，形成如下所示的等邊三角形。
-    case "triadic":
-      {
-        let triadicHue1 = _mainHue;
-        let triadicHue2 = (_mainHue + 120) % 360;
-        let triadicHue3 = (_mainHue + 240) % 360;
-        randomHue = random([triadicHue1, triadicHue2, triadicHue3]);
-      }
-      break;
-    
-    //默認值
-    default:
-        randomHue = (_mainHue + random(-60, 60)) % 360;
-      break;
-  }
-
-  randomColor = color(randomHue, randomSat, randomBri, _layerAlpha);
-  console.log("color scheme:" + colorScheme);
-  return randomColor;
-}
-
-/**
  * 獲取對比色
  * @param {number} minAlpha - 最小透明度
  * @param {number} maxAlpha - 最大透明度
  * @returns {p5.Color} 對比色
  */
 function getContrastingColor(minAlpha, maxAlpha) {
-  let bgHue = hue(bgColor);
-  let bgSat = saturation(bgColor);
-  let bgBri = brightness(bgColor);
-
-  let colorScheme = random([
-    "complementary",
-    "splitComplementary",
-    "tetradic",
-    "triadic",
-  ]);
+  let bgHue = mainCanvas.hue(bgColor);
+  let bgSat = mainCanvas.saturation(bgColor);
+  let bgBri = mainCanvas.brightness(bgColor);
 
   let contrastingColor;
 
@@ -402,7 +319,7 @@ function drawColorFilterLayer() {
   let overlayColor = color(hue(bgColor), 40, 100, 0.2);
   mainCanvas.noStroke();
   mainCanvas.fill(overlayColor);
-  mainCanvas.rect(0, 0, width, height);
+  mainCanvas.rect(0, 0, mainCanvas.width, mainCanvas.height);
 }
 
 
@@ -448,7 +365,6 @@ function drawLayers(_layers, _minSize, _maxSize, _minAlpha, _maxAlpha) {
 
     let rectColor = getRelatedColor(baseHue, baseSat, baseBri, layerAlpha, layerColorScheme);
     
-    // let rectColor = getRandomColor(baseHue, layerAlpha);
     let variationColor = getColorVariation(rectColor, 30);
 
     layerOrder.push({ type: layerType, xCount, yCount, mode, rectWidth, rectHeight, padding, layerAlpha, colors: [rectColor, variationColor]});
