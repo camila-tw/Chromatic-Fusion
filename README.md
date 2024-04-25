@@ -21,4 +21,10 @@
 
 ### TODO
 - [ ] 計算疊加的區塊，讓疊加區塊產生撞色效果
-- [ ] 隨機產生不同尺寸的畫布 
+- [ ] 隨機產生不同尺寸的畫布
+
+![Sketch Gradient Textures](https://github.com/camila-tw/Chromatic-Fusion/assets/6125187/ca7c93ae-67a7-4ad4-84b0-c203529be344)
+
+![Sketch Gradient and Textures (3)](https://github.com/camila-tw/Chromatic-Fusion/assets/6125187/8d01f657-0f11-439b-b939-51a98f6b5761)
+![Gradient and Textures (1)](https://github.com/camila-tw/Chromatic-Fusion/assets/6125187/d0c7538f-0a30-4c1a-bbba-9cdad54fe497)
+![Gradient and Textures (2)](https://github.com/camila-tw/Chromatic-Fusion/assets/6125187/afdbb2e5-7a6d-422a-a498-73f9d9bc26bb)
