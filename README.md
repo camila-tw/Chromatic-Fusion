@@ -19,5 +19,6 @@
 
 [Demo](https://camiladev-gerentiveart-texture.netlify.app/)
 
-* [] 計算疊加的區塊，讓疊加區塊產生撞色效果
-* [] 隨機產生不同尺寸的畫布 
+### TODO
+- [ ] 計算疊加的區塊，讓疊加區塊產生撞色效果
+- [ ] 隨機產生不同尺寸的畫布 
